@@ -94,3 +94,87 @@ def load_mt(fname, mt_pairs, mt_idx):
         count += 1
     return
 
+
+################# BLEU #######################
+def compareNbest_with_mt_bleu(fr, en, mt_pairs):
+	from nltk import translate
+	mt_en = mt_pairs[fr] #get corresponding translation
+	return translate.bleu_score.sentence_bleu([mt_en], en)
+
+#### take nbest file and add an extra column with bleu score
+def nbest_bleu_save(in_file, out_file, mt_pairs):
+    
+    nbest_out = open (out_file, 'w', encoding='utf-8')
+    nbest = open (in_file, 'r', encoding='utf-8')
+
+    curr_bleu = 0
+    for line in nbest:
+        line = line.rstrip()
+        fr_id, fr, en_id, en = line.split("\t")
+
+        curr_bleu = compareNbest_with_mt_bleu(fr, en, mt_pairs)
+
+        nbest_out.write (line + "\t" + str(curr_bleu) + "\n")
+    nbest_out.close()
+
+
+### load nbest file with bleu and choose the candidate with best bleu
+def getBestBleu(file_train_nbest_bleu):
+    import sys
+    nbest_bleu = open (file_train_nbest_bleu, 'r', encoding='utf-8')
+
+    best_bleu = -1
+    best_str = ""
+    dic = {}
+
+    for line in nbest_bleu:
+        line = line.rstrip()
+        fr_id, fr, en_id, en, bleu = line.split("\t")
+
+        if fr_id not in dic:
+            dic[fr_id] = line
+            best_bleu = bleu
+            best_str = line
+        elif bleu > best_bleu:
+            best_bleu = bleu
+            best_str = line
+            dic[fr_id] = best_str
+    return dic
+
+### get best bleu file and threshold on bleu value
+def filter_on_bleu(dic, threshold):
+    final_list = {}
+    eval_list = {}
+    for key,value in dic.items():
+        fr_id, fr, en_id, en, bleu = value.split("\t")
+        if float(bleu) > threshold:
+            final_list[key] = value
+            fr_id = str(int(fr_id.replace('fr-','')))
+            en_id = str(int(en_id.replace('en-','')))
+            eval_list[fr_id + "\t" + en_id] = float(bleu)
+    return eval_list
+
+######### TER ###################
+def compareNbest_with_mt_ter(fr, en, mt_pairs):
+	import pyter
+	mt_en = mt_pairs[fr].split() #get corresponding translation
+	en_wrd = en.split()
+	return pyter.ter(en_wrd, mt_en)
+
+#### take nbest file and add an extra column with bleu score
+
+def nbest_ter_save(in_file, out_file, mt_pairs):
+    
+    nbest_out = open (out_file, 'w', encoding='utf-8')
+    nbest = open (in_file, 'r', encoding='utf-8')
+
+    curr_ter = 0
+    for line in nbest:
+        line = line.rstrip()
+        fr_id, fr, en_id, en = line.split("\t")
+
+        curr_ter = compareNbest_with_mt_ter(fr, en, mt_pairs)
+
+        nbest_out.write (line + "\t" + str(curr_ter) + "\n")
+    nbest_out.close()
+
