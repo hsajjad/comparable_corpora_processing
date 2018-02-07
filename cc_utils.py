@@ -51,7 +51,7 @@ def calculateOracleScore(pred, gold, nbest):
 #### take nbest file and make a dictionary to calcualte oracle score
 def nbest_oracle(nbest_file):
     pred_nbest = {}
-    
+
     nbest = open (nbest_file, 'r', encoding='utf-8')
     for line in nbest:
         line = line.rstrip()
@@ -82,3 +82,15 @@ def load_prediction(fname):
         line = line.rstrip()
         pred[line] = 0 # loading french english pairs
     return (pred)
+
+#### load MT file ## French to English
+def load_mt(fname, mt_pairs, mt_idx):
+    fin = open (fname, 'r', encoding='utf-8')
+    count = 1
+    for line in fin:
+        fr, en = line.split("\t")
+        mt_pairs[fr] = en
+        mt_idx[count] = fr
+        count += 1
+    return
+
