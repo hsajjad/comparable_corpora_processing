@@ -19,11 +19,12 @@ def calculateScore(pred, gold):
 
     fp = len(pred) - tp # predicted minus gold = ones that are not in gold
     fn = len(gold) - tp # present in gold but not in predicted
-    print (tp, fp, fn)
+    #print (tp, fp, fn)
     p = tp / (tp + fp)
     r = tp / (tp + fn)
     f = (2 * p * r) / (p + r)
-    print (p, r, f)
+    score = "p = " + str(p) + ", r = " + str(r) + ", f = " + str(f)
+    return score
 
 # take an nbest input file and get the best possible score
 def calculateOracleScore(pred, gold, nbest):
@@ -39,18 +40,17 @@ def calculateOracleScore(pred, gold, nbest):
 
     fp = len(pred)/nbest - tp ## normlalize # predicted minus gold = ones that are not in gold
     fn = len(gold) - tp # present in gold but not in predicted
-    print (tp, fp, fn)
-     
-    
-    print (tp, fp, fn)
+    #print (tp, fp, fn)
     
     p = tp / (tp + fp)
     r = tp / (tp + fn)
     f = (2 * p * r) / (p + r)
-    print (p, r, f)
+    score = "p = " + str(p) + ", r = " + str(r) + ", f = " + str(f)
+    return score
 
 #### take nbest file and make a dictionary to calcualte oracle score
-def nbest_oracle(nbest_file, pred_nbest):
+def nbest_oracle(nbest_file):
+    pred_nbest = {}
     
     nbest = open (nbest_file, 'r', encoding='utf-8')
     for line in nbest:
